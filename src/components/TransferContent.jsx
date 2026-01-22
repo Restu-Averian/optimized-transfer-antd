@@ -1,17 +1,19 @@
-import { memo, useContext, useEffect, useMemo, useState } from "react";
+import { memo, useContext, useEffect, useMemo } from "react";
 import { useShallow } from "zustand/shallow";
-import { Transfer as AntdTransfer, Pagination } from "antd";
+import { Transfer as AntdTransfer } from "antd";
 import { generateIdxSelected } from "../helpers";
-import TransferTable from "./TransferTable";
-import { LIMIT_PAGE } from "../constants";
 import { useTransferStore } from "../store";
 import TransferCtx from "../context/TransferCtx";
 import { objHasOwnProperty } from "../utils/object";
 import { fmtToString } from "../utils/string";
+import TransferFooter from "./TransferFooter";
+import TransferListItem from "./list-item";
 
 const selector = (state) => {
   return {
     objLengthSelected: state.objLengthSelected,
+    pageLeft: state?.pageLeft,
+    pageRight: state?.pageRight,
     setObjLengthSelected: state?.setObjLengthSelected,
   };
 };
@@ -30,9 +32,6 @@ const TransferContent_ = () => {
     value,
     datasource = [],
   } = useContext(TransferCtx);
-
-  const [pageLeft, setPageLeft] = useState(1);
-  const [pageRight, setPageRight] = useState(1);
 
   const { objLengthSelected, setObjLengthSelected } = useTransferStore(
     useShallow(selector),
@@ -108,6 +107,12 @@ const TransferContent_ = () => {
 
     sourceKeysRef.current = initFilterData;
     targetKeysRef.current = targetDatas;
+
+    setObjLengthSelected((prev) => ({
+      ...prev,
+      left: 0,
+      right: 0,
+    }));
   };
 
   const onChange = (destDirection) => {
@@ -127,6 +132,7 @@ const TransferContent_ = () => {
 
       targetKeysRef.current = newTargetKeys;
       sourceKeysRef.current = newSourceDatas;
+
       selectedKeyLeftRef.current?.clear();
 
       setObjLengthSelected((prev) => ({
@@ -159,65 +165,15 @@ const TransferContent_ = () => {
         targetKeys={[]}
         footer={(_, info) => {
           const direction = info?.direction;
-          const page = direction === "left" ? pageLeft : pageRight;
 
-          return (
-            <Pagination
-              simple
-              showSizeChanger={false}
-              current={page}
-              style={{ padding: "8px", display: "flex", justifyContent: "end" }}
-              total={
-                direction === "left"
-                  ? sourceKeysRef?.current?.length
-                  : targetKeysRef?.current?.length
-              }
-              onChange={(newPage) => {
-                if (direction === "left") {
-                  setPageLeft(newPage);
-                } else {
-                  setPageRight(newPage);
-                }
-              }}
-            />
-          );
+          return <TransferFooter direction={direction} />;
         }}
         onChange={(_, destDirection) => {
           onChange(destDirection);
         }}
       >
         {({ direction }) => {
-          const selectedKeyRef =
-            direction === "left" ? selectedKeyLeftRef : selectedKeyRightRef;
-
-          const page = direction === "left" ? pageLeft : pageRight;
-
-          const sourceData = [];
-
-          const start = (page - 1) * LIMIT_PAGE;
-          const end = page * LIMIT_PAGE;
-
-          sourceKeysRef.current?.slice(start, end)?.forEach((item) => {
-            const dataKey = item?.key;
-            const hasData = oriDatasRef?.current?.get(dataKey);
-
-            if (hasData) {
-              sourceData?.push(item);
-            }
-          });
-
-          const dataSourceTable =
-            direction === "left"
-              ? sourceData
-              : targetKeysRef.current?.slice(0, 10);
-
-          return (
-            <TransferTable
-              direction={direction}
-              datasourceTable={dataSourceTable}
-              selectedKeyRef={selectedKeyRef}
-            />
-          );
+          return <TransferListItem direction={direction} />;
         }}
       </AntdTransfer>
     </>

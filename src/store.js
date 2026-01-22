@@ -7,6 +7,9 @@ import { create } from "zustand";
  *
  * @typedef {Object} TTransferStore
  * @property {TObjLengthSelected} objLengthSelected
+ * @property {number} pageLeft
+ * @property {number} pageRight
+ * @property {(updater: number | function, direction:"left" | "right") => void} setPage
  * @property {(updater: TObjLengthSelected | function) => void} setObjLengthSelected
  */
 
@@ -16,6 +19,8 @@ export const useTransferStore = create((set) => ({
     left: 0,
     right: 0,
   },
+  pageLeft: 1,
+  pageRight: 1,
   setObjLengthSelected(updater) {
     set((state) => {
       const newValue =
@@ -25,6 +30,19 @@ export const useTransferStore = create((set) => ({
 
       return {
         objLengthSelected: newValue,
+      };
+    });
+  },
+  setPage(updater, direction) {
+    set((state) => {
+      const statePage = direction === "left" ? state.pageLeft : state.pageRight;
+      const page = direction === "left" ? "pageLeft" : "pageRight";
+
+      const newValue =
+        typeof updater === "function" ? updater(statePage) : updater;
+
+      return {
+        [page]: newValue,
       };
     });
   },

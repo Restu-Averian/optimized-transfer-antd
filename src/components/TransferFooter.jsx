@@ -1,6 +1,17 @@
-import { memo } from "react";
+import { Pagination } from "antd";
+import { memo, useContext, useMemo } from "react";
+import TransferCtx from "../context/TransferCtx";
+import { useTransferStore } from "../store";
 
-const TransferFooter_ = ({ page, setPage, direction }) => {
+const TransferFooter_ = ({ direction }) => {
+  const { sourceKeysRef, targetKeysRef } = useContext(TransferCtx);
+
+  const { setPage, pageLeft, pageRight } = useTransferStore();
+
+  const page = useMemo(() => {
+    return direction === "left" ? pageLeft : pageRight;
+  }, [pageLeft, pageRight, direction]);
+
   return (
     <Pagination
       simple
@@ -13,12 +24,7 @@ const TransferFooter_ = ({ page, setPage, direction }) => {
           : targetKeysRef?.current?.length
       }
       onChange={(newPage) => {
-        setPage(newPage);
-        if (direction === "left") {
-          setPageLeft(newPage);
-        } else {
-          setPageRight(newPage);
-        }
+        setPage(newPage, direction);
       }}
     />
   );
