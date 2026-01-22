@@ -1,15 +1,13 @@
 import { memo, useContext, useEffect, useMemo, useState } from "react";
+import { useShallow } from "zustand/shallow";
 import { Transfer as AntdTransfer, Pagination } from "antd";
-import {
-  fmtToString,
-  generateIdxSelected,
-  objHasOwnProperty,
-} from "../helpers";
+import { generateIdxSelected } from "../helpers";
 import TransferTable from "./TransferTable";
 import { LIMIT_PAGE } from "../constants";
 import { useTransferStore } from "../store";
-import { useShallow } from "zustand/shallow";
 import TransferCtx from "../context/TransferCtx";
+import { objHasOwnProperty } from "../utils/object";
+import { fmtToString } from "../utils/string";
 
 const selector = (state) => {
   return {
@@ -39,6 +37,24 @@ const TransferContent_ = () => {
   const { objLengthSelected, setObjLengthSelected } = useTransferStore(
     useShallow(selector),
   );
+
+  const triggerDatasource = useMemo(() => {
+    const leftKeys = Array.from(selectedKeyLeftRef.current);
+    const rightKeys = Array.from(selectedKeyRightRef.current);
+    const allSelectedKeys = [...leftKeys, ...rightKeys];
+
+    return allSelectedKeys?.map((key) => {
+      const originalItem = oriDatasRef.current.get(key);
+
+      if (!originalItem) return { key, title: `Item ${key}`, disabled: false };
+
+      return {
+        ...originalItem,
+        key: key,
+        disabled: false,
+      };
+    });
+  }, [objLengthSelected]);
 
   const valueKey = useMemo(() => {
     if (selectValue) {
@@ -136,9 +152,11 @@ const TransferContent_ = () => {
           },
         }}
         selectedKeys={[
-          ...Array.from(selectedKeyLeftRef.current).slice(0, 1),
-          ...Array.from(selectedKeyRightRef.current).slice(0, 1),
-        ].map((item) => fmtToString(item))}
+          ...Array.from(selectedKeyLeftRef.current),
+          ...Array.from(selectedKeyRightRef.current),
+        ]}
+        dataSource={triggerDatasource.length > 0 ? triggerDatasource : []}
+        targetKeys={[]}
         footer={(_, info) => {
           const direction = info?.direction;
           const page = direction === "left" ? pageLeft : pageRight;
@@ -167,7 +185,6 @@ const TransferContent_ = () => {
         onChange={(_, destDirection) => {
           onChange(destDirection);
         }}
-        dataSource={datasource}
       >
         {({ direction }) => {
           const selectedKeyRef =

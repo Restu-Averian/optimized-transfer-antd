@@ -13,7 +13,7 @@ function App() {
         selectLabel="title"
         selectValue="value"
         datasource={mockData2}
-        // value="value1,value2"
+        value="value1,value2"
       />
     </div>
   );
