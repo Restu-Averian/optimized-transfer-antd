@@ -1,10 +1,15 @@
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useContext, useEffect, useMemo, useState } from "react";
 import { Transfer as AntdTransfer, Pagination } from "antd";
-import { fmtToString, generateIdxSelected, objHasOwnProperty } from "./helpers";
-import TransferTable from "./components/TransferTable";
-import { LIMIT_PAGE } from "./constants";
-import { useTransferStore } from "./store";
+import {
+  fmtToString,
+  generateIdxSelected,
+  objHasOwnProperty,
+} from "../helpers";
+import TransferTable from "./TransferTable";
+import { LIMIT_PAGE } from "../constants";
+import { useTransferStore } from "../store";
 import { useShallow } from "zustand/shallow";
+import TransferCtx from "../context/TransferCtx";
 
 const selector = (state) => {
   return {
@@ -13,19 +18,21 @@ const selector = (state) => {
   };
 };
 
-const Transfer_ = ({
-  selectLabel,
-  selectValue,
-  isSpreadAllRecordItem = false,
-  value,
-  datasource = [],
-}) => {
-  const keysListDataRef = useRef([]);
-  const sourceKeysRef = useRef([]);
-  const targetKeysRef = useRef([]);
-  const oriDatasRef = useRef(new Map());
-  const selectedKeyLeftRef = useRef(new Set([]));
-  const selectedKeyRightRef = useRef(new Set([]));
+const TransferContent_ = () => {
+  const {
+    keysListDataRef,
+    sourceKeysRef,
+    targetKeysRef,
+    oriDatasRef,
+    selectedKeyLeftRef,
+    selectedKeyRightRef,
+    selectLabel,
+    selectValue,
+    isSpreadAllRecordItem = false,
+    value,
+    datasource = [],
+  } = useContext(TransferCtx);
+
   const [pageLeft, setPageLeft] = useState(1);
   const [pageRight, setPageRight] = useState(1);
 
@@ -199,5 +206,5 @@ const Transfer_ = ({
     </>
   );
 };
-const Transfer = memo(Transfer_);
-export default Transfer;
+const TransferContent = memo(TransferContent_);
+export default TransferContent;

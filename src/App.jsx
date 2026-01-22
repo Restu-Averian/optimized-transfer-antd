@@ -1,5 +1,5 @@
+import Transfer from "./components";
 import { mockData2 } from "./constants";
-import Transfer from "./Transfer";
 
 function App() {
   return (
