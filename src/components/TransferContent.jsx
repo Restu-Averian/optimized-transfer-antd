@@ -1,7 +1,7 @@
 import { memo, useContext, useEffect, useMemo } from "react";
 import { useShallow } from "zustand/shallow";
 import { Transfer as AntdTransfer } from "antd";
-import { generateIdxSelected } from "../helpers";
+import { generateIdxSelected, getNewPageAfterOnChange } from "../helpers";
 import { useTransferStore } from "../store";
 import TransferCtx from "../context/TransferCtx";
 import { objHasOwnProperty } from "../utils/object";
@@ -15,6 +15,7 @@ const selector = (state) => {
     objLengthSelected: state.objLengthSelected,
     pageLeft: state?.pageLeft,
     pageRight: state?.pageRight,
+    setPage: state?.setPage,
     setObjLengthSelected: state?.setObjLengthSelected,
   };
 };
@@ -34,9 +35,13 @@ const TransferContent_ = () => {
     datasource = [],
   } = useContext(TransferCtx);
 
-  const { objLengthSelected, setObjLengthSelected } = useTransferStore(
-    useShallow(selector),
-  );
+  const {
+    objLengthSelected,
+    setObjLengthSelected,
+    pageLeft,
+    pageRight,
+    setPage,
+  } = useTransferStore(useShallow(selector));
 
   const triggerDatasource = useMemo(() => {
     const leftKeys = Array.from(selectedKeyLeftRef.current);
@@ -130,6 +135,11 @@ const TransferContent_ = () => {
         ...(targetKeysRef?.current || []),
       ];
 
+      const newPage = getNewPageAfterOnChange({
+        arrDatasLength: newSourceDatas?.length,
+        currPage: pageLeft,
+      });
+
       targetKeysRef.current = newTargetKeys;
       sourceKeysRef.current = newSourceDatas;
 
@@ -139,6 +149,7 @@ const TransferContent_ = () => {
         ...prev,
         left: 0,
       }));
+      setPage(newPage, "left");
     } else {
       const selected = targetKeysRef?.current?.filter((item) =>
         selectedKeyRightRef?.current?.has(item?.key),
@@ -152,6 +163,11 @@ const TransferContent_ = () => {
         ...(sourceKeysRef?.current || []),
       ];
 
+      const newPage = getNewPageAfterOnChange({
+        arrDatasLength: newTargetKeys?.length,
+        currPage: pageRight,
+      });
+
       targetKeysRef.current = newTargetKeys;
       sourceKeysRef.current = newSourceData;
 
@@ -161,6 +177,7 @@ const TransferContent_ = () => {
         ...prev,
         right: 0,
       }));
+      setPage(newPage, "right");
     }
   };
 
@@ -175,7 +192,7 @@ const TransferContent_ = () => {
           minWidth: 300,
           width: 300,
           maxWidth: 300,
-          // height: 480,
+          height: 530,
         },
       }}
       showSearch

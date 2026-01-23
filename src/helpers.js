@@ -1,3 +1,5 @@
+import { LIMIT_PAGE } from "./constants";
+
 export const generateIdxSelected = (arr = []) => {
   return arr?.map((data, idx) => ({
     ...data,
@@ -21,4 +23,17 @@ export const onOnceSelect = ({
 
     // objSelectIdxRef.current[direction].start = idxSelected;
   }
+};
+
+export const getNewPageAfterOnChange = ({ arrDatasLength, currPage }) => {
+  const newPage = Math.ceil(arrDatasLength / LIMIT_PAGE);
+
+  if (newPage < currPage) {
+    if (newPage > 0) {
+      return newPage;
+    }
+    return 1;
+  }
+
+  return currPage;
 };

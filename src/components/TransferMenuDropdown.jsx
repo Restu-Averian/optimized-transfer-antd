@@ -38,6 +38,17 @@ const TransferMenuDropdown_ = ({ direction }) => {
     };
   }, [objLengthSelected, direction]);
 
+  const onSelectByDropdown = (datas) => {
+    for (let i = 0; i < datas?.length; i++) {
+      selectedKeyRef.current?.add(datas?.[i]?.key);
+    }
+
+    setObjLengthSelected((prev) => ({
+      ...prev,
+      [direction]: datas?.length,
+    }));
+  };
+
   return (
     <Dropdown
       menu={{
@@ -47,25 +58,11 @@ const TransferMenuDropdown_ = ({ direction }) => {
         ],
         onClick: ({ key }) => {
           if (key === "select-all") {
-            for (let i = 0; i < arrDatas?.length; i++) {
-              selectedKeyRef.current?.add(arrDatas?.[i]?.key);
-            }
-
-            setObjLengthSelected((prev) => ({
-              ...prev,
-              [direction]: arrDatas?.length,
-            }));
+            onSelectByDropdown(arrDatas);
           } else {
             const pageData = onProcessListDatas(arrDatas, direction);
 
-            for (let i = 0; i < pageData?.length; i++) {
-              selectedKeyRef.current?.add(pageData?.[i]?.key);
-            }
-
-            setObjLengthSelected((prev) => ({
-              ...prev,
-              [direction]: pageData?.length,
-            }));
+            onSelectByDropdown(pageData);
           }
         },
       }}
