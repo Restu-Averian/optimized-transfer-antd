@@ -18,7 +18,7 @@ const TransferListItem_ = ({ direction }) => {
     selectedKeyLeftRef,
     selectedKeyRightRef,
     sourceKeysRef,
-    oriDatasRef,
+    onProcessListDatas,
     targetKeysRef,
     datasource,
   } = useContext(TransferCtx);
@@ -41,23 +41,10 @@ const TransferListItem_ = ({ direction }) => {
   }, [objLengthSelected, pageLeft, pageRight]);
 
   const dataSourceTable = useMemo(() => {
-    const sourceData = [];
+    const sourceData = onProcessListDatas(sourceKeysRef.current, direction);
+    const targetData = onProcessListDatas(targetKeysRef.current, direction);
 
-    const start = (page - 1) * LIMIT_PAGE;
-    const end = page * LIMIT_PAGE;
-
-    sourceKeysRef.current?.slice(start, end)?.forEach((item) => {
-      const dataKey = item?.key;
-      const hasData = oriDatasRef?.current?.get(dataKey);
-
-      if (hasData) {
-        sourceData?.push(item);
-      }
-    });
-
-    return direction === "left"
-      ? sourceData
-      : targetKeysRef.current?.slice(0, 10);
+    return direction === "left" ? sourceData : targetData;
   }, [page, datasource, objLengthSelected]);
 
   return (

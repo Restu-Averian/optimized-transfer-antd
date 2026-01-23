@@ -8,6 +8,7 @@ import { objHasOwnProperty } from "../utils/object";
 import { fmtToString } from "../utils/string";
 import TransferFooter from "./TransferFooter";
 import TransferListItem from "./list-item";
+import TransferMenuDropdown from "./TransferMenuDropdown";
 
 const selector = (state) => {
   return {
@@ -120,15 +121,14 @@ const TransferContent_ = () => {
       const selected = sourceKeysRef?.current?.filter((item) =>
         selectedKeyLeftRef?.current?.has(item?.key),
       );
+      const newSourceDatas = sourceKeysRef?.current?.filter(
+        (item) => !selectedKeyLeftRef?.current?.has(item?.key),
+      );
 
       const newTargetKeys = [
         ...(selected || []),
         ...(targetKeysRef?.current || []),
       ];
-
-      const newSourceDatas = sourceKeysRef?.current?.filter(
-        (item) => !selectedKeyLeftRef?.current?.has(item?.key),
-      );
 
       targetKeysRef.current = newTargetKeys;
       sourceKeysRef.current = newSourceDatas;
@@ -139,6 +139,28 @@ const TransferContent_ = () => {
         ...prev,
         left: 0,
       }));
+    } else {
+      const selected = targetKeysRef?.current?.filter((item) =>
+        selectedKeyRightRef?.current?.has(item?.key),
+      );
+      const newTargetKeys = targetKeysRef?.current?.filter(
+        (item) => !selectedKeyRightRef?.current?.has(item?.key),
+      );
+
+      const newSourceData = [
+        ...(selected || []),
+        ...(sourceKeysRef?.current || []),
+      ];
+
+      targetKeysRef.current = newTargetKeys;
+      sourceKeysRef.current = newSourceData;
+
+      selectedKeyRightRef?.current?.clear();
+
+      setObjLengthSelected((prev) => ({
+        ...prev,
+        right: 0,
+      }));
     }
   };
 
@@ -147,36 +169,45 @@ const TransferContent_ = () => {
   }, []);
 
   return (
-    <>
-      <AntdTransfer
-        styles={{
-          section: {
-            minWidth: 300,
-            width: 300,
-            maxWidth: 300,
-            height: 480,
-          },
-        }}
-        selectedKeys={[
-          ...Array.from(selectedKeyLeftRef.current),
-          ...Array.from(selectedKeyRightRef.current),
-        ]}
-        dataSource={triggerDatasource.length > 0 ? triggerDatasource : []}
-        targetKeys={[]}
-        footer={(_, info) => {
-          const direction = info?.direction;
+    <AntdTransfer
+      styles={{
+        section: {
+          minWidth: 300,
+          width: 300,
+          maxWidth: 300,
+          // height: 480,
+        },
+      }}
+      showSearch
+      showSelectAll={false}
+      onSearch={(direction, value) => {
+        console.log("dd", direction, value);
+      }}
+      onChange={(_, destDirection) => {
+        onChange(destDirection);
+      }}
+      selectedKeys={[
+        ...Array.from(selectedKeyLeftRef.current),
+        ...Array.from(selectedKeyRightRef.current),
+      ]}
+      targetKeys={[...Array.from(selectedKeyRightRef.current)]}
+      dataSource={
+        triggerDatasource.length > 0 ? triggerDatasource?.slice(0, 10) : []
+      }
+      selectAllLabels={[
+        <TransferMenuDropdown direction="left" />,
+        <TransferMenuDropdown direction="right" />,
+      ]}
+      footer={(_, info) => {
+        const direction = info?.direction;
 
-          return <TransferFooter direction={direction} />;
-        }}
-        onChange={(_, destDirection) => {
-          onChange(destDirection);
-        }}
-      >
-        {({ direction }) => {
-          return <TransferListItem direction={direction} />;
-        }}
-      </AntdTransfer>
-    </>
+        return <TransferFooter direction={direction} />;
+      }}
+    >
+      {({ direction }) => {
+        return <TransferListItem direction={direction} />;
+      }}
+    </AntdTransfer>
   );
 };
 const TransferContent = memo(TransferContent_);
