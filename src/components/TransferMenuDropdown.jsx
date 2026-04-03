@@ -9,13 +9,14 @@ const selector = (state) => {
   return {
     objLengthSelected: state?.objLengthSelected,
     setObjLengthSelected: state?.setObjLengthSelected,
+    pageLeft: state?.pageLeft,
+    pageRight: state?.pageRight,
   };
 };
 
 const TransferMenuDropdown_ = ({ direction }) => {
-  const { objLengthSelected, setObjLengthSelected } = useTransferStore(
-    useShallow(selector),
-  );
+  const { objLengthSelected, setObjLengthSelected, pageLeft, pageRight } =
+    useTransferStore(useShallow(selector));
 
   const {
     sourceKeysRef,
@@ -36,7 +37,18 @@ const TransferMenuDropdown_ = ({ direction }) => {
       arrDatas: targetKeysRef?.current,
       selectedKeyRef: selectedKeyRightRef,
     };
-  }, [objLengthSelected, direction]);
+  }, [objLengthSelected, direction, pageLeft, pageRight]);
+
+  const { isSelectedAll, isSelectedPage } = useMemo(() => {
+    const pageData = onProcessListDatas(arrDatas, direction);
+
+    return {
+      isSelectedAll: arrDatas?.length === selectedKeyRef?.current?.size,
+      isSelectedPage: pageData?.every((data) =>
+        selectedKeyRef?.current?.has(data?.key),
+      ),
+    };
+  }, [arrDatas, direction, selectedKeyRef?.current?.size, pageLeft, pageRight]);
 
   const onSelectByDropdown = (datas) => {
     for (let i = 0; i < datas?.length; i++) {
@@ -49,20 +61,58 @@ const TransferMenuDropdown_ = ({ direction }) => {
     }));
   };
 
+  const onUnSelectByDropdown = (datas, type) => {
+    if (type === "all") {
+      selectedKeyRef?.current?.clear();
+
+      setObjLengthSelected((prev) => ({
+        ...prev,
+        [direction]: 0,
+      }));
+    } else {
+      for (let i = 0; i < datas?.length; i++) {
+        const item = datas?.[i];
+
+        selectedKeyRef?.current?.delete(item?.idxSelected);
+
+        setObjLengthSelected((prev) => ({
+          ...prev,
+          [direction]: selectedKeyRef?.current?.size,
+        }));
+      }
+    }
+  };
+
   return (
     <Dropdown
       menu={{
         items: [
-          { key: "select-all", label: "Select All" },
-          { key: "select-current-page", label: "Select Current Page" },
+          {
+            key: "select-all",
+            label: isSelectedAll ? "Unselect All" : "Select All",
+          },
+          {
+            key: "select-current-page",
+            label: isSelectedPage
+              ? "Unselect Current Page"
+              : "Select Current Page",
+          },
         ],
         onClick: ({ key }) => {
           if (key === "select-all") {
-            onSelectByDropdown(arrDatas);
+            if (isSelectedAll) {
+              onUnSelectByDropdown(arrDatas, "all");
+            } else {
+              onSelectByDropdown(arrDatas);
+            }
           } else {
             const pageData = onProcessListDatas(arrDatas, direction);
 
-            onSelectByDropdown(pageData);
+            if (isSelectedPage) {
+              onUnSelectByDropdown(pageData, "page");
+            } else {
+              onSelectByDropdown(pageData);
+            }
           }
         },
       }}
