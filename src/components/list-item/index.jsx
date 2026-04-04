@@ -21,6 +21,7 @@ const TransferListItem_ = ({ direction }) => {
     onProcessListDatas,
     targetKeysRef,
     datasource,
+    objSearch,
   } = useContext(TransferCtx);
 
   const { pageLeft, pageRight, objLengthSelected } = useTransferStore(
@@ -45,7 +46,7 @@ const TransferListItem_ = ({ direction }) => {
     const targetData = onProcessListDatas(targetKeysRef.current, direction);
 
     return direction === "left" ? sourceData : targetData;
-  }, [page, datasource, objLengthSelected]);
+  }, [page, datasource, objLengthSelected, objSearch]);
 
   return (
     <TransferListItemContent

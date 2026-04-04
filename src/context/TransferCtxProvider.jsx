@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import TransferCtx from "./TransferCtx";
 import { useTransferStore } from "../store";
 import { useShallow } from "zustand/shallow";
@@ -21,6 +21,11 @@ const TransferCtxProvider = ({ children, ...props }) => {
 
   const { pageLeft, pageRight } = useTransferStore(useShallow(selector));
 
+  const [objSearch, setObjSearch] = useState({
+    left: "",
+    right: "",
+  });
+
   const onProcessListDatas = (arrDatas = [], direction) => {
     const listDatas = [];
     const page = direction === "left" ? pageLeft : pageRight;
@@ -28,14 +33,17 @@ const TransferCtxProvider = ({ children, ...props }) => {
     const start = (page - 1) * LIMIT_PAGE;
     const end = page * LIMIT_PAGE;
 
-    arrDatas?.slice(start, end)?.forEach((item) => {
-      const dataKey = item?.key;
-      const hasData = oriDatasRef?.current?.get(dataKey);
+    arrDatas
+      ?.filter((item) => item?.title?.includes(objSearch?.[direction]))
+      ?.slice(start, end)
+      ?.forEach((item) => {
+        const dataKey = item?.key;
+        const hasData = oriDatasRef?.current?.get(dataKey);
 
-      if (hasData) {
-        listDatas?.push(item);
-      }
-    });
+        if (hasData) {
+          listDatas?.push(item);
+        }
+      });
 
     return listDatas;
   };
@@ -49,7 +57,9 @@ const TransferCtxProvider = ({ children, ...props }) => {
         oriDatasRef,
         selectedKeyLeftRef,
         selectedKeyRightRef,
+        objSearch,
         onProcessListDatas,
+        setObjSearch,
         ...props,
       }}
     >

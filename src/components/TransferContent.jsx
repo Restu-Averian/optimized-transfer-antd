@@ -33,6 +33,7 @@ const TransferContent_ = () => {
     isSpreadAllRecordItem = false,
     value,
     datasource = [],
+    setObjSearch,
   } = useContext(TransferCtx);
 
   const {
@@ -198,7 +199,12 @@ const TransferContent_ = () => {
       showSearch
       showSelectAll={false}
       onSearch={(direction, value) => {
-        console.log("dd", direction, value);
+        setObjSearch((prev) => {
+          return {
+            ...prev,
+            [direction]: value,
+          };
+        });
       }}
       onChange={(_, destDirection) => {
         onChange(destDirection);

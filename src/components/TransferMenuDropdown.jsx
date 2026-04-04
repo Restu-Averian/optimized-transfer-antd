@@ -23,6 +23,7 @@ const TransferMenuDropdown_ = ({ direction }) => {
     targetKeysRef,
     selectedKeyLeftRef,
     selectedKeyRightRef,
+    objSearch,
     onProcessListDatas,
   } = useContext(TransferCtx);
 
@@ -48,7 +49,14 @@ const TransferMenuDropdown_ = ({ direction }) => {
         selectedKeyRef?.current?.has(data?.key),
       ),
     };
-  }, [arrDatas, direction, selectedKeyRef?.current?.size, pageLeft, pageRight]);
+  }, [
+    arrDatas,
+    direction,
+    selectedKeyRef?.current?.size,
+    pageLeft,
+    pageRight,
+    objSearch,
+  ]);
 
   const onSelectByDropdown = (datas) => {
     for (let i = 0; i < datas?.length; i++) {
