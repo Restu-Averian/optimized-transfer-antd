@@ -28,9 +28,9 @@ export const mockData = Array.from({
   ooooo: `oooooo${i}`,
 }));
 
-export const mockData2 = Array.from({ length: 1000_000 }).map((_, i) => ({
+export const mockData2 = Array.from({ length: 1020 }).map((_, i) => ({
   key: i.toString(),
-  title: `content${i + 1}`,
+  title: `content${i}`,
   value: `value${i + 1}`,
   description: `description of content${i + 1}`,
 }));
