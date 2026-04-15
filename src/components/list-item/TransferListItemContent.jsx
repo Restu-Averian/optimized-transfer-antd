@@ -1,7 +1,9 @@
 import { Checkbox, Empty, Table, Typography } from "antd";
 import { HEIGHT_TABLE_TRANSFER, OBJ_CLASS_TRANSFER } from "../../constants";
 import { useTransferStore } from "../../store";
-import { onOnceSelect } from "../../helpers";
+import { onMultipleSelect, onOnceSelect } from "../../helpers";
+import { useContext } from "react";
+import TransferCtx from "../../context/TransferCtx";
 
 const selector = (state) => state?.setObjLengthSelected;
 
@@ -11,6 +13,8 @@ const TransferListItemContent = ({
   direction,
 }) => {
   const setObjLengthSelected = useTransferStore(selector);
+
+  const { objSelectIdxRef } = useContext(TransferCtx);
 
   return (
     <Table
@@ -52,13 +56,26 @@ const TransferListItemContent = ({
       ]}
       onRow={({ key, idxSelected }) => {
         return {
-          onClick() {
-            onOnceSelect({
-              key,
-              idxSelected,
-              selectedKeyRef,
-              direction,
-            });
+          onClick(e) {
+            if (
+              e?.shiftKey &&
+              objSelectIdxRef?.current?.[direction]?.start !== -1
+            ) {
+              onMultipleSelect({
+                objSelectIdxRef,
+                idxSelected,
+                direction,
+                selectedKeyRef,
+              });
+            } else {
+              onOnceSelect({
+                key,
+                idxSelected,
+                selectedKeyRef,
+                direction,
+                objSelectIdxRef,
+              });
+            }
 
             setObjLengthSelected((prev) => ({
               ...prev,

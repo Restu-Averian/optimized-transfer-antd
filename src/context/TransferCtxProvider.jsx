@@ -18,6 +18,16 @@ const TransferCtxProvider = ({ children, ...props }) => {
   const oriDatasRef = useRef(new Map());
   const selectedKeyLeftRef = useRef(new Set([]));
   const selectedKeyRightRef = useRef(new Set([]));
+  const objSelectIdxRef = useRef({
+    left: {
+      start: -1,
+      end: -1,
+    },
+    right: {
+      start: -1,
+      end: -1,
+    },
+  });
 
   const { pageLeft, pageRight } = useTransferStore(useShallow(selector));
 
@@ -58,6 +68,7 @@ const TransferCtxProvider = ({ children, ...props }) => {
         selectedKeyLeftRef,
         selectedKeyRightRef,
         objSearch,
+        objSelectIdxRef,
         onProcessListDatas,
         setObjSearch,
         ...props,

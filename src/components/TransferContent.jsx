@@ -34,6 +34,7 @@ const TransferContent_ = () => {
     value,
     datasource = [],
     setObjSearch,
+    objSelectIdxRef,
   } = useContext(TransferCtx);
 
   const {
@@ -151,6 +152,11 @@ const TransferContent_ = () => {
         left: 0,
       }));
       setPage(newPage, "left");
+
+      objSelectIdxRef.current["left"] = {
+        start: -1,
+        end: -1,
+      };
     } else {
       const selected = targetKeysRef?.current?.filter((item) =>
         selectedKeyRightRef?.current?.has(item?.key),
@@ -179,6 +185,11 @@ const TransferContent_ = () => {
         right: 0,
       }));
       setPage(newPage, "right");
+
+      objSelectIdxRef.current["right"] = {
+        start: -1,
+        end: -1,
+      };
     }
   };
 
